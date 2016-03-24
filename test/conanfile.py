@@ -11,6 +11,9 @@ class SDLTestConanFile(ConanFile):
     generators = "cmake"
     requires = "sdl/2.0.4@%s/%s" % (username, channel)
 
+    def config(self):
+        del self.settings.compiler.libcxx
+
     def build(self):
         cmake = CMake(self.settings)
         self.run('cmake . %s' % cmake.command_line)
