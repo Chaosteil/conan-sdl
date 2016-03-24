@@ -16,8 +16,14 @@ class SDLTestConanFile(ConanFile):
 
     def build(self):
         cmake = CMake(self.settings)
-        self.run('cmake . %s' % cmake.command_line)
-        self.run('cmake --build . %s' % cmake.build_config)
+        self.run("mkdir -p _build")
+        self.output.warn('cd _build && cmake .. %s' % cmake.command_line)
+        self.run('cd _build && cmake .. %s' % cmake.command_line)
+        self.output.warn('cd _build && cmake --build . %s' % cmake.build_config)
+        self.run('cd _build && cmake --build . %s' % cmake.build_config)
+
+    def imports(self):
+        self.copy(pattern="*.dylib", dst="bin", src="lib")
 
     def test(self):
-        self.run(os.path.join(".", "bin", "test"))
+        self.run(os.path.join(".", "_build", "bin", "test"))

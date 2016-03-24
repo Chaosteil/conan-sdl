@@ -13,7 +13,6 @@ class SDLConanFile(ConanFile):
     license = "zlib/png"
     url = "http://github.com/chaosteil/conan-sdl"
     exports = ["CMakeLists.txt"]
-    so_version = "0.4.0"
     mercurial_archive = "330f500d5815"
     full_version = 'SDL2-2.0.4'
 
