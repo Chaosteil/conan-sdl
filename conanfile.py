@@ -37,10 +37,10 @@ class SDLConanFile(ConanFile):
         cmake = CMake(self.settings)
         self.run("mkdir -p _build")
         cd_build = "cd _build"
-        self.output.warn('%s && cmake .. %s' % (cd_build, cmake.command_line))
-        self.run('%s && cmake .. %s' % (cd_build, cmake.command_line))
-        self.output.warn("%s && cmake --build . %s" % (cd_build, cmake.build_config))
-        self.run("%s && cmake --build . %s" % (cd_build, cmake.build_config))
+        self.output.warn('cd %s && cmake .. %s' % (cd_build, cmake.command_line))
+        self.run('cd %s && cmake .. %s' % (cd_build, cmake.command_line))
+        self.output.warn("cd %s && cmake --build . %s" % (cd_build, cmake.build_config))
+        self.run("cd %s && cmake --build . %s" % (cd_build, cmake.build_config))
 
     def package(self):
         folder_name = 'SDL-%s' % (self.mercurial_archive)
