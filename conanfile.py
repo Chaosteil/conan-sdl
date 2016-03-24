@@ -15,7 +15,6 @@ class SDLConanFile(ConanFile):
     exports = ["CMakeLists.txt"]
     so_version = "0.4.0"
     mercurial_archive = "330f500d5815"
-
     full_version = 'SDL2-2.0.4'
 
     def source(self):
@@ -28,19 +27,13 @@ class SDLConanFile(ConanFile):
         unzip(zip_name)
         os.unlink(zip_name)
 
+        folder_name = 'SDL-%s' % (self.mercurial_archive)
+        self.run("chmod +x ./%s/configure" % folder_name)
+
     def config(self):
         del self.settings.compiler.libcxx
 
     def build(self):
-        cmake = CMake(self.settings)
-        self.run("mkdir build")
-        self.run('cd build && cmake ../%s -DBUILD_SHARED_LIBS=%s '
-                 '-DCMAKE_INSTALL_PREFIX=../install %s' %
-            ('SDL-' + self.mercurial_archive, "ON" if self.options.shared else "OFF",
-             cmake.command_line))
-        self.run('cd build && cmake --build . %s -- -j2 install' %
-
-                 cmake.build_config)
         """ Define your project building. You decide the way of building it
             to reuse it later in any other project.
         """
