@@ -16,6 +16,9 @@ class SDLConanFile(ConanFile):
     mercurial_archive = "330f500d5815"
     full_version = 'SDL2-2.0.4'
 
+    def config(self):
+        del self.settings.compiler.libcxx
+
     def source(self):
         zip_name = "%s.zip" % self.full_version
         # download("https://www.libsdl.org/release/%s" % zip_name, zip_name)
@@ -29,16 +32,15 @@ class SDLConanFile(ConanFile):
         folder_name = 'SDL-%s' % (self.mercurial_archive)
         self.run("chmod +x ./%s/configure" % folder_name)
 
-    def config(self):
-        del self.settings.compiler.libcxx
-
     def build(self):
         folder_name = 'SDL-%s' % (self.mercurial_archive)
         cmake = CMake(self.settings)
         self.run("mkdir -p _build")
         cd_build = "cd _build"
-        self.output.warn('%s && cmake ../%s %s' % (cd_build, folder_name, cmake.command_line))
-        self.run('%s && cmake ../%s %s' % (cd_build, folder_name, cmake.command_line))
+        # This is a super hacky way to inject conan into the SDL CMake. :(
+        command = cmake.command_line.replace('CONAN_', '').replace('COMPILER', 'CMAKE_C_COMPILER')
+        self.output.warn('%s && cmake ../%s %s' % (cd_build, folder_name, command))
+        self.run('%s && cmake ../%s %s' % (cd_build, folder_name, command))
         self.output.warn("%s && cmake --build . %s" % (cd_build, cmake.build_config))
         self.run("%s && cmake --build . %s" % (cd_build, cmake.build_config))
 
