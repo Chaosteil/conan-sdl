@@ -39,18 +39,45 @@ class SDLConanFile(ConanFile):
             ('SDL-' + self.mercurial_archive, "ON" if self.options.shared else "OFF",
              cmake.command_line))
         self.run('cd build && cmake --build . %s -- -j2 install' %
+
                  cmake.build_config)
+        """ Define your project building. You decide the way of building it
+            to reuse it later in any other project.
+        """
+        folder_name = 'SDL-%s' % (self.mercurial_archive)
+        if self.settings.os == "Linux" or self.settings.os == "Macos":
+            self.run("cd %s &&  mkdir _build" % folder_name)
+            cd_build = "cd %s && cd _build" % folder_name
+            arch = "-m32 " if self.settings.arch == "x86" else ""
+            self.run("cd %s && CFLAGS='%s -fPIC -O3' ./configure" % (folder_name, arch))
+            if self.settings.os == "Macos":
+                old_str = 'LDSHARED=gcc -dynamiclib -install_name ${exec_prefix}/lib/libz.1.dylib'
+                new_str = 'LDSHARED=gcc -dynamiclib -install_name libz.1.dylib'
+                replace_in_file("./%s/Makefile" % folder_name, old_str, new_str)
+            self.run("cd %s && make" % folder_name)
+        else:
+            cmake = CMake(self.settings)
+            self.run("mkdir _build")
+            cd_build = "cd _build"
+            self.output.warn('%s && cmake .. %s' % (cd_build, cmake.command_line))
+            self.run('%s && cmake .. %s' % (cd_build, cmake.command_line))
+            self.output.warn("%s && cmake --build . %s" % (cd_build, cmake.build_config))
+            self.run("%s && cmake --build . %s" % (cd_build, cmake.build_config))
 
     def package(self):
-        self.copy('*.*', 'include', 'install/include', keep_path=True)
-        self.copy(pattern="*.a", dst="lib", src="install/lib", keep_path=False)
-        self.copy(pattern="*.so." + self.so_version, dst="lib", src="install/lib", keep_path=False)
+        folder_name = 'SDL-%s' % (self.mercurial_archive)
+        self.copy("*.h", "include", "%s" % (folder_name), keep_path=False)
+        self.copy("*.h", "include", "%s" % ("_build"), keep_path=False)
+
+        # Copying static and dynamic libs
+        if self.options.shared:
+            if self.settings.os == "Macos":
+                self.copy(pattern="*.dylib", dst="lib", keep_path=False)
+            else:
+                self.copy(pattern="*.so*", dst="lib", src=folder_name, keep_path=False)
+        else:
+            self.copy(pattern="*.a", dst="lib", src="%s/_build" % folder_name, keep_path=False)
+            self.copy(pattern="*.a", dst="lib", src=folder_name, keep_path=False)
 
     def package_info(self):
-        if self.options.shared:
-            self.cpp_info.libs.append(':libSDL2-2.0.so.' + self.so_version)
-        else:
-            self.cpp_info.libs.extend(['SDL2', 'SDL2main'])
-
-        if self.settings.os == "Linux":
-            self.cpp_info.libs.extend(["m", "dl", "pthread", "rt"])
+        self.cpp_info.libs = ['SDL2', 'SDL2main']
