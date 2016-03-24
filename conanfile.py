@@ -28,6 +28,9 @@ class SDLConanFile(ConanFile):
         unzip(zip_name)
         os.unlink(zip_name)
 
+    def config(self):
+        del self.settings.compiler.libcxx
+
     def build(self):
         cmake = CMake(self.settings)
         self.run("mkdir build")
