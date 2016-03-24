@@ -34,28 +34,13 @@ class SDLConanFile(ConanFile):
         del self.settings.compiler.libcxx
 
     def build(self):
-        """ Define your project building. You decide the way of building it
-            to reuse it later in any other project.
-        """
-        folder_name = 'SDL-%s' % (self.mercurial_archive)
-        if self.settings.os == "Linux" or self.settings.os == "Macos":
-            self.run("cd %s &&  mkdir _build" % folder_name)
-            cd_build = "cd %s && cd _build" % folder_name
-            arch = "-m32 " if self.settings.arch == "x86" else ""
-            self.run("cd %s && CFLAGS='%s -fPIC -O3' ./configure" % (folder_name, arch))
-            if self.settings.os == "Macos":
-                old_str = 'LDSHARED=gcc -dynamiclib -install_name ${exec_prefix}/lib/libz.1.dylib'
-                new_str = 'LDSHARED=gcc -dynamiclib -install_name libz.1.dylib'
-                replace_in_file("./%s/Makefile" % folder_name, old_str, new_str)
-            self.run("cd %s && make" % folder_name)
-        else:
-            cmake = CMake(self.settings)
-            self.run("mkdir _build")
-            cd_build = "cd _build"
-            self.output.warn('%s && cmake .. %s' % (cd_build, cmake.command_line))
-            self.run('%s && cmake .. %s' % (cd_build, cmake.command_line))
-            self.output.warn("%s && cmake --build . %s" % (cd_build, cmake.build_config))
-            self.run("%s && cmake --build . %s" % (cd_build, cmake.build_config))
+        cmake = CMake(self.settings)
+        self.run("mkdir -p _build")
+        cd_build = "cd _build"
+        self.output.warn('%s && cmake .. %s' % (cd_build, cmake.command_line))
+        self.run('%s && cmake .. %s' % (cd_build, cmake.command_line))
+        self.output.warn("%s && cmake --build . %s" % (cd_build, cmake.build_config))
+        self.run("%s && cmake --build . %s" % (cd_build, cmake.build_config))
 
     def package(self):
         folder_name = 'SDL-%s' % (self.mercurial_archive)
