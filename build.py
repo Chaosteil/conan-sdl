@@ -1,16 +1,7 @@
-import os
-import platform
-import sys
+from conan.packager import ConanMultiPackager
+
 
 if __name__ == "__main__":
-    os.system('conan export chaosteil/develop')
-
-    def test(settings):
-        argv = " ".join(sys.argv[1:])
-        command = "conan test %s %s" % (settings, argv)
-        retcode = os.system(command)
-        if retcode != 0:
-            exit("Error while executing:\n\t %s" % command)
-
-    test('-s arch=x86_64 -s build_type=Debug')
-    test('-s arch=x86_64')
+    builder = ConanMultiPackager()
+    builder.add_common_builds(shared_options_name="sdl:shared", pure_c=True)
+    builder.run()
