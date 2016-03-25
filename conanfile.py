@@ -37,8 +37,12 @@ class SDLConanFile(ConanFile):
         cmake = CMake(self.settings)
         self.run("mkdir -p _build")
         cd_build = "cd _build"
-        # This is a super hacky way to inject conan into the SDL CMake. :(
+
+        # This is a super hacky way to inject conan settings into the SDL CMake. :(
         command = cmake.command_line.replace('CONAN_', 'CMAKE_').replace('COMPILER', 'C_COMPILER')
+        if self.settings.os == "Macos":
+            command = command.replace('apple-clang', 'clang')
+
         self.output.warn('%s && cmake ../%s %s' % (cd_build, folder_name, command))
         self.run('%s && cmake ../%s %s' % (cd_build, folder_name, command))
         self.output.warn("%s && cmake --build . %s" % (cd_build, cmake.build_config))
