@@ -63,3 +63,6 @@ class SDLConanFile(ConanFile):
             self.cpp_info.libs = ['SDL2-2.0']
         else:
             self.cpp_info.libs = ['SDL2']
+
+        if self.settings.os == "Linux":
+            self.cpp_info.libs.extend(["m", "dl", "pthread", "rt"])
