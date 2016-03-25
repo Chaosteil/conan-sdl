@@ -2,6 +2,7 @@ from conans import ConanFile, CMake
 from conans.tools import download, unzip, check_sha256
 import os, shutil
 
+
 class SDLConanFile(ConanFile):
     name = "sdl"
     version = "2.0.4"
@@ -16,8 +17,10 @@ class SDLConanFile(ConanFile):
     mercurial_archive = "330f500d5815"
     full_version = 'SDL2-2.0.4'
 
+
     def config(self):
         del self.settings.compiler.libcxx
+
 
     def source(self):
         zip_name = "%s.zip" % self.full_version
@@ -31,6 +34,7 @@ class SDLConanFile(ConanFile):
 
         folder_name = 'SDL-%s' % (self.mercurial_archive)
         self.run("chmod +x ./%s/configure" % folder_name)
+
 
     def build(self):
         folder_name = 'SDL-%s' % (self.mercurial_archive)
@@ -48,6 +52,7 @@ class SDLConanFile(ConanFile):
         self.output.warn("%s && cmake --build . %s" % (cd_build, cmake.build_config))
         self.run("%s && cmake --build . %s" % (cd_build, cmake.build_config))
 
+
     def package(self):
         folder_name = 'SDL-%s' % (self.mercurial_archive)
         self.copy("*.h", "include", "%s" % (folder_name), keep_path=False)
@@ -62,10 +67,14 @@ class SDLConanFile(ConanFile):
         else:
             self.copy(pattern="*.a", dst="lib", src="_build", keep_path=False)
 
+
     def package_info(self):
         if self.options.shared:
             self.cpp_info.libs = ['SDL2-2.0']
         else:
             self.cpp_info.libs = ['SDL2']
 
-        self.cpp_info.libs.extend(["m", "dl", "pthread", "rt"])
+        self.cpp_info.libs.extend(["m", "dl", "pthread"])
+
+        if self.settings.os == "Linux":
+            self.cpp_info.libs.append("rt")
