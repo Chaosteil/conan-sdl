@@ -59,4 +59,7 @@ class SDLConanFile(ConanFile):
             self.copy(pattern="*.a", dst="lib", src="_build", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = ['SDL2-2.0']
+        if self.options.shared:
+            self.cpp_info.libs = ['SDL2-2.0']
+        else:
+            self.cpp_info.libs = ['SDL2']
