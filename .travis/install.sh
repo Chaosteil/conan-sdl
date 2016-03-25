@@ -17,6 +17,7 @@ if [[ "$(uname -s)" == 'Darwin' ]]; then
     pyenv virtualenv 2.7.10 conan
     pyenv rehash
     pyenv activate conan
+    else
 fi
 
 pip install conan_package_tools # It installs conan too
