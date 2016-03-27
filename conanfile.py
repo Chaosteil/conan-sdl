@@ -8,8 +8,8 @@ class SDLConanFile(ConanFile):
     version = "2.0.4"
     branch = "stable"
     settings = "os", "compiler", "arch", "build_type"
-    options = {"shared": [True, False]}
-    default_options = "shared=True"
+    options = {"shared": [True, False], "gles": [True, False]}
+    default_options = ("shared=True", "gles=False")
     generators = "cmake"
     license = "zlib/png"
     url = "http://github.com/chaosteil/conan-sdl"
@@ -47,8 +47,12 @@ class SDLConanFile(ConanFile):
         if self.settings.os == "Macos":
             command = command.replace('apple-clang', 'clang')
 
-        self.output.warn('%s && cmake ../%s %s' % (cd_build, folder_name, command))
-        self.run('%s && cmake ../%s %s' % (cd_build, folder_name, command))
+        options = " ".join([
+            "-DVIDEO_OPENGLES=ON -DVIDEO_OPENGL=OFF" if self.options.gles else "-DVIDEO_OPENGLES=OFF -DVIDEO_OPENGL=ON"
+        ])
+
+        self.output.warn('%s && cmake ../%s %s %s' % (cd_build, folder_name, command, options))
+        self.run('%s && cmake ../%s %s %s' % (cd_build, folder_name, command, options))
         self.output.warn("%s && cmake --build . %s" % (cd_build, cmake.build_config))
         self.run("%s && cmake --build . %s" % (cd_build, cmake.build_config))
 
